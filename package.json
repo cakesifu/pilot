@@ -1,0 +1,61 @@
+{
+  "name": "boilerplate",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:cezar-berea/pilot.git"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "async": "^0.9.0",
+    "body-parser": "^1.12.0",
+    "browserify": "^9.0.3",
+    "bunyan": "^1.3.4",
+    "convict": "^0.6.1",
+    "cookie-session": "^1.1.0",
+    "express": "^4.12.2",
+    "fluxxor": "^1.5.2",
+    "jade": "^1.9.2",
+    "lodash": "^3.5.0",
+    "morgan": "^1.5.1",
+    "react": "^0.12.2"
+  },
+  "devDependencies": {
+    "chai": "^2.1.1",
+    "envify": "^3.3.1",
+    "livereload": "^0.3.6",
+    "mocha": "^2.2.1",
+    "node-sass": "^3.0.0-beta",
+    "nodemon": "^1.3.7",
+    "reactify": "^1.1.0",
+    "sinon": "^1.13.0",
+    "uglify-js": "^2.4.17",
+    "watchify": "^2.4.0"
+  },
+  "config": {
+    "browserify_opts": "client/index.js -t reactify -t envify --extension=.jsx"
+  },
+  "scripts": {
+    "clean": "rm -rf .dist; mkdir -p .dist",
+    "test": "cd server && mocha",
+    "start": "node index.js",
+    "stop": "echo 'not implemented'",
+    "dev": "NODE_ENV=development npm run client & npm run server",
+    "client": "NODE_ENV=development npm run watch & npm run livereload",
+    "server": "NODE_ENV=development nodemon index.js | bunyan",
+    "prebuild": "npm run clean",
+    "build": "npm run build:js & npm run build:css",
+    "build:css": "node-sass --source-map-embed client/styles/client.scss -o .dist/assets",
+    "build:js": "browserify $npm_package_config_browserify_opts -d -o .dist/client.js",
+    "watch": "npm run clean && npm run watch:js & npm run watch:css",
+    "watch:js": "watchify $npm_package_config_browserify_opts -d -o .dist/client.js",
+    "watch:css": "npm run build:css & npm run build:css -- -w -r",
+    "livereload": "livereload ./.dist",
+    "dist": "NODE_ENV=production npm run dist:css & npm run dist:js",
+    "dist:css": "npm run build:css",
+    "dist:js": "browserify $npm_package_config_browserify_opts | uglifyjs --screw-ie8 -o .dist/client.js"
+  }
+}
