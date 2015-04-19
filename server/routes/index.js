@@ -1,13 +1,21 @@
-var auth = require("./auth"),
+var
+    express = require("express"),
     session = require("./session"),
+    fs = require("./fs"),
     home = require("./home"),
     debug = require("./debug");
 
 module.exports = function(app) {
+  var router = express.Router();
 
-  app.use("/debug", debug(app));
-  app.use("/auth", auth(app));
+  router.use("/debug", debug(app));
 
-  app.get("/", home.homepage);
-  app.get("/session", session.read);
+  router.get("/", home.homepage);
+  router.get("/session", session.read);
+
+  router.get("/fs", fs.readDir);
+  router.put("/fs", fs.makeDir);
+  router.delete("/fs", fs.rmDir);
+
+  return router;
 };

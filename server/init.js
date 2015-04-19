@@ -1,12 +1,10 @@
 var logger = require("../lib/logger"),
     express = require("express"),
-    passport = require("passport"),
     bodyParser = require("body-parser"),
     cookieSession = require("cookie-session"),
     loggerMiddleware = require("morgan"),
 
-    routes = require("./routes"),
-    models = require("./models");
+    routes = require("./routes");
 
 module.exports = function(app, config) {
 
@@ -31,11 +29,8 @@ module.exports = function(app, config) {
   app.use(bodyParser.json({
   }));
 
-  // plug in passport (auth middleware)
-  app.use(passport.initialize());
-  app.use(passport.session());
-
   // initialize all the routes in the app
-  routes(app);
+  //routes(app);
+  app.use(routes(app));
 
 };
