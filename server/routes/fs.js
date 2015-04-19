@@ -60,6 +60,6 @@ function File(filepath) {
   this.path = filepath;
   this.isFile = stat.isFile();
   this.isDirectory = stat.isDirectory();
-  this.size = 527;
+  this.size = stat.size;
 }
 
