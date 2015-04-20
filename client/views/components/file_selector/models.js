@@ -1,11 +1,13 @@
 var events = require("events"),
     util = require("util"),
+    path = require("path"),
     api = require("../../../services/api");
 
-function File(path) {
+function File(filepath) {
   this.loading = true;
   this.loaded = false;
-  this.path = path;
+  this.path = filepath;
+  this.filename = path.basename(filepath);
   this.children = [];
 }
 
@@ -16,11 +18,13 @@ File.prototype.loadData = function() {
   api.path.info(this.path, this._onLoadData.bind(this));
 };
 
-File.prototype.setData = function(data) {
-  var children = data.children || [];
+File.prototype.setData = function(data, children) {
+  children = children || [];
   this.loading = false;
   this.loaded = true;
   this.size = data.size;
+  this.isDirectory = data.isDirectory;
+  this.isFile = data.isFile;
   this.children = children.map(function(fileData) {
     var f = new File(fileData.path);
     f.setData(fileData);
@@ -32,7 +36,7 @@ File.prototype.setData = function(data) {
 File.prototype._onLoadData = function(err, data) {
   this.loading = false;
   // TODO handle error
-  this.setData(data);
+  this.setData(data.file, data.children);
 };
 
 module.exports.File = File;

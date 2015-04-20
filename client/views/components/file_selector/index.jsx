@@ -37,14 +37,25 @@ module.exports = React.createClass({
   render: function() {
     return (
       <div className="file-selector">
+        selected: {this.state.selected && this.state.selected.path}
         {this.state.lanes.map(this.renderLane)}
       </div>
     );
   },
 
   renderLane: function(file, index) {
+    var callback = this.onFileSelect.bind(this, index);
     return (
-      <FileLane file={file} key={"file-" + index} />
+      <FileLane key={"file-" + file.path}
+                file={file}
+                onlyFolders={true}
+                onSelect={callback} />
     );
+  },
+
+  onFileSelect: function(index, file) {
+    this.state.lanes.splice(index + 1, Number.MAX_VALUE, file);
+    this.state.selected = file;
+    this.forceUpdate();
   }
 });

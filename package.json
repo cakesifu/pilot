@@ -18,6 +18,7 @@
     "cookie-session": "^1.1.0",
     "express": "^4.12.2",
     "fluxxor": "^1.5.2",
+    "font-awesome": "^4.3.0",
     "jade": "^1.9.2",
     "lodash": "^3.5.0",
     "morgan": "^1.5.1",
@@ -37,10 +38,11 @@
     "watchify": "^2.4.0"
   },
   "config": {
-    "browserify_opts": "client/index.js -t reactify -t envify --extension=.jsx"
+    "browserify_opts": "client/index.js -t reactify -t envify --extension=.jsx",
+    "sass_opts": "client/styles/client.scss -o .dist/assets --include-path=node_modules/"
   },
   "scripts": {
-    "clean": "rm -rf .dist; mkdir -p .dist",
+    "clean": "rm -rf .dist; mkdir -p .dist/assets",
     "test": "cd server && mocha",
     "start": "node index.js",
     "stop": "echo 'not implemented'",
@@ -49,14 +51,14 @@
     "server": "NODE_ENV=development nodemon index.js | bunyan",
     "prebuild": "npm run clean",
     "build": "npm run build:js & npm run build:css",
-    "build:css": "node-sass --source-map-embed client/styles/client.scss -o .dist/assets",
+    "build:css": "cp -R node_modules/font-awesome/fonts .dist/assets/; node-sass $npm_package_config_sass_opts --source-map-embed",
     "build:js": "browserify $npm_package_config_browserify_opts -d -o .dist/client.js",
     "watch": "npm run clean && npm run watch:js & npm run watch:css",
     "watch:js": "watchify $npm_package_config_browserify_opts -d -o .dist/client.js",
-    "watch:css": "npm run build:css & npm run build:css -- -w -r",
-    "livereload": "livereload ./.dist",
+    "watch:css": "npm run build:css & npm run build:css -- -w client/styles -r",
+    "livereload": "livereload .dist",
     "dist": "NODE_ENV=production npm run dist:css & npm run dist:js",
-    "dist:css": "npm run build:css",
+    "dist:css": "node-sass $npm_package_config_sass_opts --output-style=compressed",
     "dist:js": "browserify $npm_package_config_browserify_opts | uglifyjs --screw-ie8 -o .dist/client.js"
   }
 }
