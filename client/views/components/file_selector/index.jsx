@@ -1,7 +1,8 @@
 var React = require("react"),
     models = require("./models"),
     File = models.File,
-    FileLane = require("./file_lane");
+    FileLane = require("./file_lane"),
+    FileList;
 
 module.exports = React.createClass({
   displayName: "components/file_selector",
@@ -25,7 +26,7 @@ module.exports = React.createClass({
 
   reset: function(root) {
     this.setState({
-      lanes: [this._createFile(root)]
+      currentPath: this._createFile(root),
     });
   },
 
@@ -35,21 +36,21 @@ module.exports = React.createClass({
   },
 
   render: function() {
+    var path = this.state.currentPath;
+
+    if (!path) {
+      return null;
+    }
+
     return (
       <div className="file-selector">
-        selected: {this.state.selected && this.state.selected.path}
-        {this.state.lanes.map(this.renderLane)}
+        <div className="current-path">
+          {path.path}
+        </div>
+        <div className="file-listing">
+          <FileList file={path} onSelect={this.onFileSelect} />
+        </div>
       </div>
-    );
-  },
-
-  renderLane: function(file, index) {
-    var callback = this.onFileSelect.bind(this, index);
-    return (
-      <FileLane key={"file-" + file.path}
-                file={file}
-                onlyFolders={true}
-                onSelect={callback} />
     );
   },
 
@@ -58,4 +59,46 @@ module.exports = React.createClass({
     this.state.selected = file;
     this.forceUpdate();
   }
+});
+
+FileList = React.createClass({
+  displayName: "components/file_list",
+
+  propTypes: {
+    entries: React.PropTypes.array,
+
+    onSelect: React.PropTypes.func
+  },
+
+  componentWillMount: function() {
+    this.props.file.on("change", this.onFileUpdate);
+    // TODO only load data if not loaded or is directory and no children loaded
+    this.props.file.loadData();
+  },
+
+  render: function() {
+    return (
+      <ul>
+        {this.props.file.children.map(this.renderFile)}
+      </ul>
+    );
+  },
+
+  onFileUpdate: function() {
+    this.forceUpdate();
+  },
+
+  renderFile: function(file) {
+    return (
+      <li>
+        <a onClick={this.onFileSelect.bind(this, file)}>{file.filename}</a>
+      </li>
+    );
+  },
+
+  onFileSelect: function(file) {
+    console.log(file);
+  }
+
+
 });
