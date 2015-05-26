@@ -1,7 +1,6 @@
 var React = require("react"),
     models = require("./models"),
-    File = models.File,
-    FileLane = require("./file_lane"),
+    Path = models.Path,
     FileList;
 
 module.exports = React.createClass({
@@ -20,19 +19,19 @@ module.exports = React.createClass({
     }
   },
 
+  getInitialState: function() {
+    return {
+      currentPath: null
+    };
+  },
+
+
   componentWillMount: function() {
     this.reset(this.props.root);
   },
 
   reset: function(root) {
-    this.setState({
-      currentPath: this._createFile(root),
-    });
-  },
-
-  _createFile: function(root) {
-    var file = new File(root);
-    return file;
+    this.setCurrentPath(new Path(root));
   },
 
   render: function() {
@@ -46,19 +45,37 @@ module.exports = React.createClass({
       <div className="file-selector">
         <div className="current-path">
           {path.path}
+          <button>Use</button>
         </div>
         <div className="file-listing">
-          <FileList file={path} onSelect={this.onFileSelect} />
+          <FileList entries={path.children} onSelect={this.onPathSelect} />
         </div>
       </div>
     );
   },
 
-  onFileSelect: function(index, file) {
-    this.state.lanes.splice(index + 1, Number.MAX_VALUE, file);
-    this.state.selected = file;
+  onPathSelect: function(path) {
+    this.setCurrentPath(path);
+  },
+
+  onPathChange: function() {
     this.forceUpdate();
+  },
+
+  setCurrentPath: function(path) {
+    var crtPath = this.state.currentPath;
+    if (crtPath) {
+      crtPath.removeListener("change", this.onPathChange);
+    }
+
+    path.on("change", this.onPathChange);
+    this.setState({
+      currentPath: path
+    });
+
+    path.loadData();
   }
+
 });
 
 FileList = React.createClass({
@@ -70,22 +87,12 @@ FileList = React.createClass({
     onSelect: React.PropTypes.func
   },
 
-  componentWillMount: function() {
-    this.props.file.on("change", this.onFileUpdate);
-    // TODO only load data if not loaded or is directory and no children loaded
-    this.props.file.loadData();
-  },
-
   render: function() {
     return (
       <ul>
-        {this.props.file.children.map(this.renderFile)}
+        {this.props.entries.map(this.renderFile)}
       </ul>
     );
-  },
-
-  onFileUpdate: function() {
-    this.forceUpdate();
   },
 
   renderFile: function(file) {
@@ -97,8 +104,8 @@ FileList = React.createClass({
   },
 
   onFileSelect: function(file) {
-    console.log(file);
+    if (this.props.onSelect) {
+      this.props.onSelect(file);
+    }
   }
-
-
 });
