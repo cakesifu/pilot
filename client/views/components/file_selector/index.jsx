@@ -8,6 +8,7 @@ module.exports = React.createClass({
 
   propTypes: {
     root: React.PropTypes.string.isRequired,
+    folderMode: React.PropTypes.bool,
 
     onSelect: React.PropTypes.func,
     onCancel: React.PropTypes.func
@@ -25,7 +26,6 @@ module.exports = React.createClass({
     };
   },
 
-
   componentWillMount: function() {
     this.reset(this.props.root);
   },
@@ -35,10 +35,20 @@ module.exports = React.createClass({
   },
 
   render: function() {
-    var path = this.state.currentPath;
+    var path = this.state.currentPath,
+        entries = this._filterFiles(path.children),
+        up = null;
 
     if (!path) {
       return null;
+    }
+
+    if (path.path != this.props.root) {
+      up = (
+        <div className="go-up">
+          <button onClick={this.onGoToParent}>Up one folder</button>
+        </div>
+      );
     }
 
     return (
@@ -47,8 +57,9 @@ module.exports = React.createClass({
           {path.path}
           <button>Use</button>
         </div>
+        {up}
         <div className="file-listing">
-          <FileList entries={path.children} onSelect={this.onPathSelect} />
+          <FileList entries={entries} onSelect={this.onPathSelect} />
         </div>
       </div>
     );
@@ -60,6 +71,10 @@ module.exports = React.createClass({
 
   onPathChange: function() {
     this.forceUpdate();
+  },
+
+  onGoToParent: function() {
+    this.setCurrentPath(this.state.currentPath.parent);
   },
 
   setCurrentPath: function(path) {
@@ -74,7 +89,16 @@ module.exports = React.createClass({
     });
 
     path.loadData();
+  },
+
+  _filterFiles: function(files) {
+    var folderMode = this.props.folderMode;
+
+    return files.filter(function(f) {
+      return  !(folderMode && f.isFile);
+    });
   }
+
 
 });
 

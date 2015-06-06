@@ -21,7 +21,7 @@ module.exports = React.createClass({
         </div>
         <div>
           <h2>File selector on <em>/home/cezar</em></h2>
-          <FileSelector root="/home/cezar" />
+          <FileSelector root="/home/cezar" folderMode={true} />
         </div>
       </div>
     );

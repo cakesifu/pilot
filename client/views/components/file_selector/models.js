@@ -36,7 +36,7 @@ Path.prototype.setChildren = function(children, options) {
   children = children || [];
   this.children = children.map(function(fileData) {
     var f = new Path(fileData.path);
-    f.setData(fileData);
+    f.setData(fileData, {silent: true});
     f.setParent(self);
     return f;
   });
